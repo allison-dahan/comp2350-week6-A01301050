@@ -4,7 +4,7 @@ const database = include('/databaseConnection');
 async function getAllUsers() {
 	let sqlQuery = `
 		SELECT web_user_id, first_name, last_name, email
-		FROM web_user;
+		FROM WEB_USER;
 	`;
 	
 	try {
