@@ -20,7 +20,7 @@ async function getAllUsers() {
 const passwordPepper = "SeCretPeppa4MySal+";
 async function addUser(postData) {
 	let sqlInsertSalt = `
-	  INSERT INTO web_user (first_name, last_name, email, password_salt)   
+	  INSERT INTO WEB_USER (first_name, last_name, email, password_salt)   
 	  VALUES (?, ?, ?, sha2(UUID(), 512));
 	`;
 	let params = [
@@ -33,7 +33,7 @@ async function addUser(postData) {
 	  const results = await database.query(sqlInsertSalt, params);
 	  let insertedID = results[0].insertId; // Adjust based on how your query function returns results
 	  let updatePasswordHash = `
-		UPDATE web_user     
+		UPDATE WEB_USER    
 		SET password_hash = sha2(concat(?, ?, password_salt), 512)     
 		WHERE web_user_id = ?;
 	  `;
