@@ -19,33 +19,38 @@ async function getAllUsers() {
 
 const passwordPepper = "SeCretPeppa4MySal+";
 async function addUser(postData) {
-  let sqlInsertSalt = `  INSERT INTO web_user (first_name, last_name, email, password_salt)   
-  VALUES (:first_name, :last_name, :email, sha2(UUID(),512));  `;
-  let params = {
-    first_name: postData.first_name,
-    last_name: postData.last_name,
-    email: postData.email,
-  };
-  console.log(sqlInsertSalt);
-  try {
-    const results = await database.query(sqlInsertSalt, params);
-    let insertedID = results.insertId;
-    let updatePasswordHash = `    
-    UPDATE web_user     
-    SET password_hash = sha2(concat(:password,:pepper,password_salt),512)     
-    WHERE web_user_id = :userId;   `;
-    let params2 = {
-      password: postData.password,
-      pepper: passwordPepper,
-      userId: insertedID,
-    };
-    console.log(updatePasswordHash);
-    const results2 = await database.query(updatePasswordHash, params2);
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
+	let sqlInsertSalt = `
+	  INSERT INTO web_user (first_name, last_name, email, password_salt)   
+	  VALUES (?, ?, ?, sha2(UUID(), 512));
+	`;
+	let params = [
+	  postData.first_name,
+	  postData.last_name,
+	  postData.email,
+	];
+	console.log(sqlInsertSalt);
+	try {
+	  const results = await database.query(sqlInsertSalt, params);
+	  let insertedID = results[0].insertId; // Adjust based on how your query function returns results
+	  let updatePasswordHash = `
+		UPDATE web_user     
+		SET password_hash = sha2(concat(?, ?, password_salt), 512)     
+		WHERE web_user_id = ?;
+	  `;
+	  let params2 = [
+		postData.password,
+		passwordPepper,
+		insertedID,
+	  ];
+	  console.log(updatePasswordHash);
+	  const results2 = await database.query(updatePasswordHash, params2);
+	  return true;
+	} catch (err) {
+	  console.log("Error writing to MySQL");
+	  console.log(err);
+	  return false;
+	}
   }
-}
+  
 
 module.exports = { getAllUsers, addUser };
